@@ -435,8 +435,6 @@ class _MapScreenState extends State<MapScreen> {
 
 // ============ MAP SERVICE ============
 class LocationService {
-  String apiKey = 'YOUR_API_KEY';
-
 // ============ geolocator Service ============
 
 // calling permission request to use location with permission_handler
@@ -456,6 +454,8 @@ class LocationService {
 // ============================================
 
 // ============ Google Maps Api Service ============
+
+  String apiKey = 'YOUR_API_KEY';
 
   // get place id by inputing place name in the url by get method this will return place id
   Future getPlaceId(String input) async {
