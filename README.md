@@ -1,16 +1,13 @@
 # my_maps
 
-A new Flutter project.
+It's just a simple Google Maps with [geolocator](https://pub.dev/packages/geolocator) package and [goggle_maps_flutter](https://pub.dev/packages/google_maps_flutter) package and one more last but not least [permission_handler](https://pub.dev/packages/permission_handler) package.
 
-## Getting Started
+this app is integrated with google maps api for search place id by name to get latitude longitude and search nearby places, and with geolocator it can track your location.
 
-This project is a starting point for a Flutter application.
+NOTE: I cannot share the Api key since it's used billing account so ... put your own key and i can't share the apk either since to hit the api has limit.
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+
+https://user-images.githubusercontent.com/90954993/166852072-9af037b9-a363-4d00-94f1-ee3b959e3d58.mp4
+
