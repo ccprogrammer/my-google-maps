@@ -21,13 +21,13 @@ class _MapScreenState extends State<MapScreen> {
   late GoogleMapController mapController;
   var _panelC = PanelController();
   var _searchPlace = TextEditingController();
-  dynamic places;
-  late CameraPosition _initialCameraPosition;
 
+  late CameraPosition _initialCameraPosition;
+  dynamic places;
   int? selectedPlacesId;
   dynamic selectedPlace;
 
-  Marker? placeMarker;
+  Marker? placeMarker; //not used
 
   @override
   void initState() {
@@ -42,7 +42,7 @@ class _MapScreenState extends State<MapScreen> {
     mapController.dispose();
   }
 
-  // handler my location
+  // handler to get my location on init map
   initMyLocation() {
     _initialCameraPosition = CameraPosition(
       target: widget.MyCoordinate,
@@ -51,8 +51,8 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  // FAB Button
-  void _handleToMyLocation() async {
+  // FAB Button move camera to my location
+  _handleToMyLocation() async {
     mapController.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
@@ -64,8 +64,8 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  // handler Search
-  Future _handleGoToPlace() async {
+  // main search function handler
+  _handleGoToPlace() async {
     var place = await c.getPlace(input: _searchPlace.text);
     _goToPlace(place);
     await _searchNearby(place);
@@ -74,6 +74,7 @@ class _MapScreenState extends State<MapScreen> {
     if (_panelC.isPanelClosed) _panelC.open();
   }
 
+  // handler search nearby places by inputing LatLng, this function will join _handleGoToPlace() / main search function
   _searchNearby(place) async {
     places = await c.searchNearby(
       lat: place['geometry']['location']['lat'],
@@ -81,6 +82,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  // function to move camera to place
   _goToPlace(place) {
     double lat = place['geometry']['location']['lat'];
     double lng = place['geometry']['location']['lng'];
@@ -96,6 +98,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  // add marker but not used
   _addMarker(selectedPlace) {
     placeMarker = Marker(
       markerId: MarkerId('Selected Place'),
@@ -108,6 +111,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  // function to select place in nearby places list in sliding_up_panel
   _chooseLocation() async {
     selectedPlace = await places[selectedPlacesId];
     await _panelC.animatePanelToSnapPoint();
@@ -115,7 +119,8 @@ class _MapScreenState extends State<MapScreen> {
     setState(() {});
   }
 
-  void customModal() {
+  // modal that will return/show selected place so you can do whatever you want with the selected data
+  customModal() {
     showModalBottomSheet(
       context: context,
       shape: RoundedRectangleBorder(
@@ -188,17 +193,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  Widget _buildMap() {
-    return GoogleMap(
-      mapType: MapType.normal,
-      initialCameraPosition: _initialCameraPosition,
-      onMapCreated: (controller) => mapController = controller,
-      // markers: {
-      //   if (placeMarker != null) placeMarker!,
-      // },
-    );
-  }
-
+  // just AppBar to search place
   PreferredSizeWidget _buildAppBar() {
     return AppBar(
       automaticallyImplyLeading: false,
@@ -244,6 +239,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  // custom floating action button to go to my location
   FloatingActionButton _buildCustomFab() {
     return FloatingActionButton(
       backgroundColor: Colors.white70,
@@ -257,6 +253,19 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  // google maps screen
+  Widget _buildMap() {
+    return GoogleMap(
+      mapType: MapType.normal,
+      initialCameraPosition: _initialCameraPosition,
+      onMapCreated: (controller) => mapController = controller,
+      // markers: {
+      //   if (placeMarker != null) placeMarker!,
+      // },
+    );
+  }
+
+  // sliding_up_panel panel content
   Widget _buildPanel(controller) {
     if (places != null) {
       return Column(
@@ -275,7 +284,7 @@ class _MapScreenState extends State<MapScreen> {
               controller: controller,
               children: [
                 for (var i = 0; i < places.length; i++)
-                  _buildNeabyPlacesTile(i),
+                  _buildNearbyPlacesTile(i),
               ],
             ),
           ),
@@ -308,7 +317,8 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  Widget _buildNeabyPlacesTile(i) {
+  // nearby place tile in sliding_up_panel
+  Widget _buildNearbyPlacesTile(i) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -350,6 +360,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  // selected place tile in modalBottomSheet
   Widget _buildSelectedPlaceTile(place) {
     return InkWell(
       onTap: () {},
@@ -426,13 +437,15 @@ class _MapScreenState extends State<MapScreen> {
 class LocationService {
   String apiKey = 'YOUR_API_KEY';
 
-// geolocator Service
+// ============ geolocator Service ============
+
+// calling permission request to use location with permission_handler
   getPermission() async {
     PermissionStatus permissionGranted;
     return permissionGranted = await Permission.location.request();
   }
 
-  // get my location latitude longitude
+  // get my location latitude longitude and return the function LatLng
   getMyLocation() async {
     var _geolocatorPlatform = await GeolocatorPlatform.instance;
     var position = await _geolocatorPlatform.getCurrentPosition();
@@ -440,8 +453,11 @@ class LocationService {
     return LatLng(position.latitude, position.longitude);
   }
 
-  // google maps api service
-  // get place id to get place detail
+// ============================================
+
+// ============ Google Maps Api Service ============
+
+  // get place id by inputing place name in the url by get method this will return place id
   Future getPlaceId(String input) async {
     var url = Uri.parse(
         'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=$input&inputtype=textquery&key=$apiKey');
@@ -452,7 +468,7 @@ class LocationService {
     return placeId;
   }
 
-  // get place detail by inputing place id
+  // get place detail by inputing place id in the url by get method from getPlaceId function, this will return single place data
   Future getPlace({input}) async {
     var placeId = await getPlaceId(input);
     var url = Uri.parse(
@@ -468,6 +484,7 @@ class LocationService {
     return result;
   }
 
+  // search nearby place by inputing LatLng place from getPlace in nearbysearch url, this will return nearby places data list
   Future searchNearby({
     keyword = '',
     lat,
@@ -478,12 +495,14 @@ class LocationService {
     // if (rankOrRadius == 10) {
     //   rankOrRadius = 'radius=$radius';
     // }
+
+    // if keyword is not null, the function will get single place data from api if it's null just LatLng it will return places list
     if (keyword != null) {
       keyword = 'keyword=${keyword}&';
     }
-
     var url = Uri.parse(
         'https://maps.googleapis.com/maps/api/place/nearbysearch/json?${keyword}location=${lat}%2C${lng}&${rankOrRadius}&key=${apiKey}');
+
     var response = await http.get(url);
     var json = jsonDecode(response.body);
     var nearbyPlaces = json['results'];
@@ -491,7 +510,8 @@ class LocationService {
     return nearbyPlaces;
   }
 
-  //====================== NO DIRECTION API PERMISION
+  // NOT USED, NO API PERMISION FOR DIRECTION
+
   // Future getDirection(String origin, String destination) async {
   //   var url = Uri.parse(
   //       'https://maps.googleapis.com/maps/api/directions/json?origin=$origin&destination=$destination&key=$apiKey');
@@ -499,9 +519,11 @@ class LocationService {
   //   var json = jsonDecode(response.body);
   // }
 
+  // ============================================
+
 }
 
-// Loading Screen
+// on app start loading screen to get permission for using location and getting my location
 class LoadingScreen extends StatefulWidget {
   const LoadingScreen({Key? key}) : super(key: key);
 
@@ -512,6 +534,7 @@ class LoadingScreen extends StatefulWidget {
 class _LoadingScreenState extends State<LoadingScreen> {
   var c = LocationService();
 
+  // if permission is granted/accepted for using location it will go to the map screen if it's not the app will close
   handlerMapLocation() {
     c.getPermission().then((permissionGranted) async {
       if (permissionGranted == PermissionStatus.granted) {
