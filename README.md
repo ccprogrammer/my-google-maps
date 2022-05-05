@@ -7,3 +7,7 @@ this app is integrated with google maps api for search place id by name to get l
 NOTE: I cannot share the Api key since it's used billing account so ... put your own key and i can't share the apk either since to hit the api has limit.
 
 
+
+
+https://user-images.githubusercontent.com/90954993/166852072-9af037b9-a363-4d00-94f1-ee3b959e3d58.mp4
+
